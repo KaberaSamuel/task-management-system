@@ -27,7 +27,7 @@ public class UserController {
     }
 
     @PostMapping
-    public User createBook(@RequestBody User user) {
+    public User createUser(@RequestBody User user) {
         return userService.createUser(user);
     }
 
