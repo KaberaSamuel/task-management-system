@@ -4,7 +4,6 @@ import org.example.taskmanagementsystem.dto.UserDTO;
 import org.example.taskmanagementsystem.exception.ResourceNotFoundException;
 import org.example.taskmanagementsystem.model.User;
 import org.example.taskmanagementsystem.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,7 +14,6 @@ import java.util.stream.Collectors;
 public class UserService {
     private final UserRepository userRepository;
 
-    @Autowired
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
@@ -23,15 +21,6 @@ public class UserService {
     // Convert User entity to UserDTO
     private UserDTO mapToDTO(User user) {
         return new UserDTO( user.getUsername(), user.getEmail(), user.getRole());
-    }
-
-    // Convert UserDTO to User entity
-    private User mapToEntity(UserDTO userDTO) {
-        User user = new User();
-        user.setUsername(userDTO.getUsername());
-        user.setEmail(userDTO.getEmail());
-        user.setRole(userDTO.getRole());
-        return user;
     }
 
     // Get all users

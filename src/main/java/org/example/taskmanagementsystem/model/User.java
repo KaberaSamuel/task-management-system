@@ -18,8 +18,10 @@ public class User {
     @Column(nullable = false, updatable = false)
     private LocalDate createdAt;
 
-    private String username;
+    @Column(unique = true, nullable = false)
     private String email;
+
+    private String username;
     private String password;
     private String role;
 
@@ -42,6 +44,10 @@ public class User {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
     }
 
     public String getEmail() {

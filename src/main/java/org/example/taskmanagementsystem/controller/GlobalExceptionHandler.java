@@ -2,6 +2,7 @@ package org.example.taskmanagementsystem.controller;
 
 import org.example.taskmanagementsystem.dto.ErrorResponse;
 import org.example.taskmanagementsystem.exception.ResourceNotFoundException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -14,6 +15,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleNotFound(ResourceNotFoundException ex) {
        ErrorResponse error = new ErrorResponse(404, ex.getMessage());
        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicateFieldException(DataIntegrityViolationException ex) {
+        System.out.println(ex.getMessage());
+        ErrorResponse error = new ErrorResponse(403, "User with same email exists");
+        return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(RuntimeException.class)
