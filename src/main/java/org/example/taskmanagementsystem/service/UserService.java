@@ -59,7 +59,7 @@ public class UserService {
         if (userRepository.existsById(id)) {
             userRepository.deleteById(id);
         } else {
-            throw new RuntimeException("User with id: " + id + " not found");
+            throw new ResourceNotFoundException("User with id: " + id + " not found");
         }
     }
 }

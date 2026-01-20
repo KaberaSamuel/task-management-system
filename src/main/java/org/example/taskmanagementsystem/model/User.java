@@ -1,10 +1,12 @@
 package org.example.taskmanagementsystem.model;
 
 import jakarta.persistence.*;
+import org.springframework.cglib.core.Local;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
@@ -12,7 +14,7 @@ import java.time.LocalDate;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
@@ -27,15 +29,21 @@ public class User {
 
     public User () {}
 
-    public User(String username, String email, String password, String role) {
+    public User(Long id, String username, String email, String password, String role, LocalDate createdAt) {
+        this.id = id;
         this.username = username;
         this.email = email;
         this.password = password;
         this.role = role;
+        this.createdAt = createdAt;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getUsername() {
@@ -48,6 +56,10 @@ public class User {
 
     public String getPassword() {
         return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public String getEmail() {
@@ -68,6 +80,10 @@ public class User {
 
     public LocalDate getCreatedAt() {
         return createdAt;
+    }
+
+    public void setCreatedAt( LocalDate date) {
+        this.createdAt = date;
     }
 
 }

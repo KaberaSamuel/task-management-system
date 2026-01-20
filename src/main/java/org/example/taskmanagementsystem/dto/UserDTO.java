@@ -9,7 +9,7 @@ public class UserDTO {
 
     public UserDTO(String username, String email, String role) {
         this.username = username;
-        this.email = username;
+        this.email = email;
         this.role = role;
     }
 
