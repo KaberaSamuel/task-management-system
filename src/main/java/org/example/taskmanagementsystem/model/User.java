@@ -5,8 +5,9 @@ import org.springframework.cglib.core.Local;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
@@ -17,8 +18,8 @@ public class User {
     private Long id;
 
     @CreatedDate
-    @Column(nullable = false, updatable = false)
-    private LocalDate createdAt;
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 
     @Column(unique = true, nullable = false)
     private String email;
@@ -27,9 +28,13 @@ public class User {
     private String password;
     private String role;
 
+    // user & tasks relationship
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<Task> tasks = new HashSet<>();
+
     public User () {}
 
-    public User(Long id, String username, String email, String password, String role, LocalDate createdAt) {
+    public User(Long id, String username, String email, String password, String role, LocalDateTime createdAt) {
         this.id = id;
         this.username = username;
         this.email = email;
@@ -78,12 +83,24 @@ public class User {
         this.role = role;
     }
 
-    public LocalDate getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt( LocalDate date) {
+    public void setCreatedAt( LocalDateTime date) {
         this.createdAt = date;
+    }
+
+    public Task[] getTasks() {
+        Task[] tasksArray = new Task[tasks.size()];
+        return tasks.toArray(tasksArray);
+    }
+
+    public void addTask(Task task) {
+        tasks.add(task);
+
+        // add user to the tasks
+        task.setOwner(this);
     }
 
 }

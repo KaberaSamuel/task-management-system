@@ -14,7 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -43,7 +43,7 @@ public class UserControllerTests  {
     // Test user creation
     @Test
     void shouldCreateNewUser() throws Exception {
-        LocalDate today = LocalDate.now();
+        LocalDateTime today = LocalDateTime.now();
 
         // setup expected behavior
         User inputUser = new User(1L,"sam", "sam@gmail.com", "1234",  "USER", today);
@@ -68,7 +68,7 @@ public class UserControllerTests  {
     void ShouldReturnUserById() throws Exception {
         // Arrange
         Long userId = 1L;
-        LocalDate today = LocalDate.now();
+        LocalDateTime today = LocalDateTime.now();
         UserDTO mockUserDTO = new UserDTO("sam", "sam@gmail.com", "USER");
 
         // Define the behavior of the mock service
