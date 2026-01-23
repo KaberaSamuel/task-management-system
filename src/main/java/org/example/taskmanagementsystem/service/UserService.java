@@ -2,6 +2,7 @@ package org.example.taskmanagementsystem.service;
 
 import org.example.taskmanagementsystem.dto.UserDTO;
 import org.example.taskmanagementsystem.exception.ResourceNotFoundException;
+import org.example.taskmanagementsystem.exception.DuplicateEmailException;
 import org.example.taskmanagementsystem.model.User;
 import org.example.taskmanagementsystem.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -40,6 +41,11 @@ public class UserService {
 
     // Create a new user
     public User createUser(User user) {
+        // check if user isn't a duplicate
+        if (userRepository.existsByEmail(user.getEmail())) {
+            throw new DuplicateEmailException("User with same email already exists");
+        }
+
         return userRepository.save(user);
     }
 
@@ -48,7 +54,6 @@ public class UserService {
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User with id: " + id + " not found"));
         existingUser.setUsername(userDTO.getUsername());
-        existingUser.setEmail(userDTO.getEmail());
         existingUser.setRole(userDTO.getRole());
         User updatedUser = userRepository.save(existingUser);
         return mapToDTO(updatedUser);

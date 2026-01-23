@@ -1,6 +1,7 @@
 package org.example.taskmanagementsystem.model;
 
 import jakarta.persistence.*;
+import org.example.taskmanagementsystem.dto.UserDTO;
 import org.springframework.cglib.core.Local;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;

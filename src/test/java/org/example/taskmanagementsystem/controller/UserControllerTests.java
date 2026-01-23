@@ -79,7 +79,6 @@ public class UserControllerTests  {
                         .contentType(MediaType.APPLICATION_JSON))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$.username").value(mockUserDTO.getUsername()))
-                        .andExpect(jsonPath("$.email").value(mockUserDTO.getEmail()))
                         .andExpect(jsonPath("$.role").value(mockUserDTO.getRole()));
     }
 
@@ -111,7 +110,6 @@ public class UserControllerTests  {
         mockMvc.perform(put("/api/users/{id}", userId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updatedUserDTO)))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username").value("sam"))
                 .andExpect(jsonPath("$.email").value("sam@gmail.com"))

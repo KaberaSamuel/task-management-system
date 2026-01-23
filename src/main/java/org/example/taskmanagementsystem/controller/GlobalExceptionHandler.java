@@ -1,6 +1,7 @@
 package org.example.taskmanagementsystem.controller;
 
 import org.example.taskmanagementsystem.dto.ErrorResponse;
+import org.example.taskmanagementsystem.exception.DuplicateEmailException;
 import org.example.taskmanagementsystem.exception.ResourceNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -17,10 +18,16 @@ public class GlobalExceptionHandler {
        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(DuplicateEmailException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicateEmail(DuplicateEmailException ex) {
+        ErrorResponse error = new ErrorResponse(403, ex.getMessage());
+        return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
+    }
+
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ErrorResponse> handleDuplicateFieldException(DataIntegrityViolationException ex) {
+    public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
         System.out.println(ex.getMessage());
-        ErrorResponse error = new ErrorResponse(403, "User with same email exists");
+        ErrorResponse error = new ErrorResponse(403, "Data integrity violation");
         return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
     }
 

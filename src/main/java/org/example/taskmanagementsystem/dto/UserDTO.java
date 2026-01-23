@@ -1,5 +1,7 @@
 package org.example.taskmanagementsystem.dto;
 
+import org.example.taskmanagementsystem.model.User;
+
 public class UserDTO {
     private String username;
     private String email;
@@ -23,5 +25,9 @@ public class UserDTO {
 
     public String getRole() {
         return role;
+    }
+
+    public static UserDTO fromUser(User user) {
+        return new UserDTO(user.getUsername(), user.getEmail(), user.getRole());
     }
 }
