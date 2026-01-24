@@ -43,24 +43,21 @@ public class UserControllerTests  {
     // Test user creation
     @Test
     void shouldCreateNewUser() throws Exception {
-        LocalDateTime today = LocalDateTime.now();
+        // Arrange
+        User inputUser = new User(1L,"sam", "sam@gmail.com", "1234",  "USER", LocalDateTime.now());
+        UserDTO mockUserDTO = new UserDTO("sam", "sam@gmail.com", "USER");
 
         // setup expected behavior
-        User inputUser = new User(1L,"sam", "sam@gmail.com", "1234",  "USER", today);
-        User savedUser = new User(1L,"sam", "sam@gmail.com", "1234",  "USER", today);
-        Mockito.when(userService.createUser(any(User.class))).thenReturn(savedUser);
+        Mockito.when(userService.createUser(any(User.class))).thenReturn(mockUserDTO);
 
         // Perform the POST request
         mockMvc.perform(post("/api/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(inputUser)))
                         .andExpect(status().isCreated())
-                        .andExpect(jsonPath("$.id").value(1L))
                         .andExpect(jsonPath("$.username").value("sam"))
                         .andExpect(jsonPath("$.email").value("sam@gmail.com"))
-                        .andExpect(jsonPath("$.password").value("1234"))
-                        .andExpect(jsonPath("$.role").value("USER"))
-                        .andExpect(jsonPath("$.createdAt").value(today.toString()));
+                        .andExpect(jsonPath("$.role").value("USER"));
     }
 
     // Test get user by id

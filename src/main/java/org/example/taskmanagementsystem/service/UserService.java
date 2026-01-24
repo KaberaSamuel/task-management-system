@@ -19,44 +19,40 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    // Convert User entity to UserDTO
-    private UserDTO mapToDTO(User user) {
-        return new UserDTO( user.getUsername(), user.getEmail(), user.getRole());
-    }
-
     // Get all users
     public List<UserDTO> getAllUsers() {
         return userRepository.findAll()
                 .stream()
-                .map(this::mapToDTO)
+                .map(UserDTO::fromUser)
                 .collect(Collectors.toList());
     }
 
-    // Get user by id`
+    // Get user by id
     public Optional<UserDTO> getUserById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User with id: " + id + " not found"));
-        return Optional.of(mapToDTO(user));
+        return Optional.of(UserDTO.fromUser(user));
     }
 
     // Create a new user
-    public User createUser(User user) {
+    public UserDTO createUser(User user) {
         // check if user isn't a duplicate
         if (userRepository.existsByEmail(user.getEmail())) {
             throw new DuplicateEmailException("User with same email already exists");
         }
 
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+        return UserDTO.fromUser(savedUser);
     }
 
     // Update an existing user
     public UserDTO updateUser(Long id, UserDTO userDTO) {
         User existingUser = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User with id: " + id + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User with id: " + id + " not found"));
         existingUser.setUsername(userDTO.getUsername());
         existingUser.setRole(userDTO.getRole());
         User updatedUser = userRepository.save(existingUser);
-        return mapToDTO(updatedUser);
+        return UserDTO.fromUser(updatedUser);
     }
 
     // Delete a user by id
