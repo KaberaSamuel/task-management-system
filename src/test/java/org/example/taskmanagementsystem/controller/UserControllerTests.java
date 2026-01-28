@@ -43,8 +43,10 @@ public class UserControllerTests  {
     // Test user creation
     @Test
     void shouldCreateNewUser() throws Exception {
-        // Arrange
-        User inputUser = new User(1L,"sam", "sam@gmail.com", "1234",  "USER", LocalDateTime.now());
+        User inputUser = new User("sam", "sam@gmail.com", "1234",  org.example.taskmanagementsystem.enums.UserRole.MEMBER);
+        inputUser.setId(1L);
+        inputUser.setCreatedAt(LocalDateTime.now());
+
         UserDTO mockUserDTO = new UserDTO("sam", "sam@gmail.com", "USER");
 
         // setup expected behavior

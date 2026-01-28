@@ -6,6 +6,7 @@ import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import org.example.taskmanagementsystem.model.User;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -21,7 +22,7 @@ public class TokenProvider {
         try {
             Algorithm algorithm = Algorithm.HMAC256(JWT_SECRET);
             return JWT.create()
-                    .withSubject(user.getUsername())
+                    .withSubject(user.getEmail())
                     .withClaim("username", user.getUsername())
                     .withExpiresAt(genAccessExpirationDate())
                     .sign(algorithm);
@@ -42,7 +43,8 @@ public class TokenProvider {
         }
     }
 
+    // access token should expire after an hour
     private Instant genAccessExpirationDate() {
-        return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of("-03:00"));
+        return Instant.now().plusSeconds(60 * 60);
     }
 }

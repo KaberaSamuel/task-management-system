@@ -2,18 +2,24 @@ package org.example.taskmanagementsystem.model;
 
 import jakarta.persistence.*;
 import org.example.taskmanagementsystem.dto.UserDTO;
+import org.example.taskmanagementsystem.enums.UserRole;
 import org.springframework.cglib.core.Local;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "users")
-public class User {
+public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -25,9 +31,11 @@ public class User {
     @Column(unique = true, nullable = false)
     private String email;
 
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
+
     private String username;
     private String password;
-    private String role;
 
     // user & tasks relationship
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -35,13 +43,20 @@ public class User {
 
     public User () {}
 
-    public User(Long id, String username, String email, String password, String role, LocalDateTime createdAt) {
-        this.id = id;
+    public User( String username, String email, String password, UserRole role) {
         this.username = username;
         this.email = email;
         this.password = password;
         this.role = role;
-        this.createdAt = createdAt;
+    }
+
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        if (this.role == UserRole.ADMIN) {
+            return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"), new SimpleGrantedAuthority("ROLE_MEMBER"));
+        }
+        return List.of(new SimpleGrantedAuthority("ROLE_MEMBER"));
     }
 
     public Long getId() {
@@ -52,8 +67,29 @@ public class User {
         this.id = id;
     }
 
+    @Override
     public String getUsername() {
         return username;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 
     public void setUsername(String username) {
@@ -76,11 +112,11 @@ public class User {
         this.email = email;
     }
 
-    public String getRole() {
+    public UserRole getRole() {
         return role;
     }
 
-    public void setRole(String role) {
+    public void setRole(UserRole role) {
         this.role = role;
     }
 

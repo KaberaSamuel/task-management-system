@@ -1,6 +1,7 @@
 package org.example.taskmanagementsystem.service;
 
 import org.example.taskmanagementsystem.dto.UserDTO;
+import org.example.taskmanagementsystem.enums.UserRole;
 import org.example.taskmanagementsystem.exception.ResourceNotFoundException;
 import org.example.taskmanagementsystem.exception.DuplicateEmailException;
 import org.example.taskmanagementsystem.model.User;
@@ -50,7 +51,7 @@ public class UserService {
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User with id: " + id + " not found"));
         existingUser.setUsername(userDTO.getUsername());
-        existingUser.setRole(userDTO.getRole());
+        existingUser.setRole(UserRole.fromString(userDTO.getRole()));
         User updatedUser = userRepository.save(existingUser);
         return UserDTO.fromUser(updatedUser);
     }
