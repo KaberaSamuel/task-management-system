@@ -1,5 +1,6 @@
 package org.example.taskmanagementsystem.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.example.taskmanagementsystem.config.auth.TokenProvider;
 import org.example.taskmanagementsystem.dto.JwtDTO;
@@ -26,6 +27,13 @@ public class AuthController {
     @Autowired
     private TokenProvider tokenService;
 
+    private String recoverToken(HttpServletRequest request) {
+        var authHeader = request.getHeader("Authorization");
+        if (authHeader == null)
+            return null;
+        return authHeader.replace("Bearer ", "");
+    }
+
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody @Valid User data) {
         service.registerUser(data);
@@ -39,4 +47,17 @@ public class AuthController {
         var accessToken = tokenService.generateAccessToken((User) authUser.getPrincipal());
         return ResponseEntity.ok(new JwtDTO(accessToken));
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(HttpServletRequest request) {
+        String token = recoverToken(request);
+
+        if (service.invalidateToken(token)) {
+            return ResponseEntity.status(HttpStatus.OK).body("Logged out successfully, token invalidated.");
+        }
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Logout failed, token already invalid.");
+    }
+
+
 }
