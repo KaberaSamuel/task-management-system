@@ -28,6 +28,6 @@ public class UserDTO {
     }
 
     public static UserDTO fromUser(User user) {
-        return new UserDTO(user.getUsername(), user.getEmail(), user.getRole());
+        return new UserDTO(user.getUsername(), user.getEmail(), user.getRole().name());
     }
 }
