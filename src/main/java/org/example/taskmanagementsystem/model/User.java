@@ -1,9 +1,9 @@
 package org.example.taskmanagementsystem.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
-import org.example.taskmanagementsystem.dto.UserDTO;
 import org.example.taskmanagementsystem.enums.UserRole;
-import org.springframework.cglib.core.Local;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.core.GrantedAuthority;
@@ -52,6 +52,7 @@ public class User implements UserDetails {
 
 
     @Override
+    @JsonIgnore
     public Collection<? extends GrantedAuthority> getAuthorities() {
         if (this.role == UserRole.ADMIN) {
             return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"), new SimpleGrantedAuthority("ROLE_MEMBER"));
@@ -68,34 +69,39 @@ public class User implements UserDetails {
     }
 
     @Override
-    public String getUsername() {
-        return username;
-    }
-
-    @Override
+    @JsonIgnore
     public boolean isAccountNonExpired() {
         return true;
     }
 
     @Override
+    @JsonIgnore
     public boolean isAccountNonLocked() {
         return true;
     }
 
     @Override
+    @JsonIgnore
     public boolean isCredentialsNonExpired() {
         return true;
     }
 
     @Override
+    @JsonIgnore
     public boolean isEnabled() {
         return true;
+    }
+
+    @Override
+    public String getUsername() {
+        return username;
     }
 
     public void setUsername(String username) {
         this.username = username;
     }
 
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     public String getPassword() {
         return password;
     }
