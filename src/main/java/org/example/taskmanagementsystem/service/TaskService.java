@@ -1,11 +1,13 @@
 package org.example.taskmanagementsystem.service;
 
-import org.example.taskmanagementsystem.dto.TaskDTO;
+import org.example.taskmanagementsystem.dto.task.CreateTaskDTO;
+import org.example.taskmanagementsystem.dto.task.GetTaskDTO;
 import org.example.taskmanagementsystem.exception.ResourceNotFoundException;
 import org.example.taskmanagementsystem.model.Task;
 import org.example.taskmanagementsystem.model.User;
 import org.example.taskmanagementsystem.repository.TaskRepository;
 import org.example.taskmanagementsystem.repository.UserRepository;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,24 +25,25 @@ public class TaskService {
     }
 
     // Get all tasks
-    public List<TaskDTO> getAllTasks() {
+    public List<GetTaskDTO> getAllTasks() {
         return taskRepository.findAll().stream()
-                .map(TaskDTO::fromTask)
+                .map(GetTaskDTO::fromTask)
                 .collect(Collectors.toList());
     }
 
     // Get task by id
-    public Optional<TaskDTO> getTaskById(Long id) {
+    public Optional<GetTaskDTO> getTaskById(Long id) {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Task with id: " + id + " not found"));
-        return Optional.of(TaskDTO.fromTask(task));
+        return Optional.of(GetTaskDTO.fromTask(task));
     }
 
     // Create a new task
-    public TaskDTO createTask(TaskDTO taskDto) {
-        // use owner from db
-        User dbOwner = userRepository.findByEmail(taskDto.getOwnerEmail())
-                .orElseThrow(() -> new ResourceNotFoundException("User with email: " + taskDto.getOwnerEmail() + " not found"));
+    public GetTaskDTO createTask(CreateTaskDTO taskDto) {
+        // get owner from security context
+        String currentUserEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        User dbOwner = userRepository.findByEmail(currentUserEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("User with email: " + currentUserEmail + " not found"));
 
         Task task = new Task();
         task.setTitle(taskDto.getTitle());
@@ -50,11 +53,11 @@ public class TaskService {
         task.setOwner(dbOwner);
 
         Task savedTask = taskRepository.save(task);
-        return TaskDTO.fromTask(savedTask);
+        return GetTaskDTO.fromTask(savedTask);
     }
 
     // Update an existing task
-    public TaskDTO updateTask(Long id, TaskDTO taskDetailsDto) {
+    public GetTaskDTO updateTask(Long id, CreateTaskDTO taskDetailsDto) {
         Task existingTask = taskRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Task with id: " + id + " not found"));
 
@@ -63,14 +66,8 @@ public class TaskService {
         existingTask.setStatus(taskDetailsDto.getStatus());
         existingTask.setPriority(taskDetailsDto.getPriority());
 
-        if (taskDetailsDto.getOwnerEmail() != null) {
-            User dbOwner = userRepository.findByEmail(taskDetailsDto.getOwnerEmail())
-                    .orElseThrow(() -> new ResourceNotFoundException("User with email: " + taskDetailsDto.getOwnerEmail() + " not found"));
-            existingTask.setOwner(dbOwner);
-        }
-
         Task updatedTask = taskRepository.save(existingTask);
-        return TaskDTO.fromTask(updatedTask);
+        return GetTaskDTO.fromTask(updatedTask);
     }
 
     // Delete a task by id

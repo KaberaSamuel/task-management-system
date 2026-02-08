@@ -1,7 +1,8 @@
 package org.example.taskmanagementsystem.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.example.taskmanagementsystem.dto.TaskDTO;
+import org.example.taskmanagementsystem.dto.task.CreateTaskDTO;
+import org.example.taskmanagementsystem.dto.task.GetTaskDTO;
 import org.example.taskmanagementsystem.exception.ResourceNotFoundException;
 import org.example.taskmanagementsystem.service.TaskService;
 import org.junit.jupiter.api.Test;
@@ -10,9 +11,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.List;
@@ -26,7 +29,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@WithMockUser
+@ActiveProfiles("test")
+@Transactional
 public class TaskControllerTests {
 
     @Autowired
@@ -40,9 +44,9 @@ public class TaskControllerTests {
 
     @Test
     void shouldGetAllTasks() throws Exception {
-        TaskDTO task1 = new TaskDTO("Task 1", "Description 1", "TODO", "HIGH", "sam@gmail.com", "sam");
-        TaskDTO task2 = new TaskDTO("Task 2", "Description 2", "IN_PROGRESS", "MEDIUM", "test@gmail.com", "test");
-        List<TaskDTO> tasks = Arrays.asList(task1, task2);
+        GetTaskDTO task1 = new GetTaskDTO("Task 1", "Description 1", "TODO", "HIGH", "sam@gmail.com");
+        GetTaskDTO task2 = new GetTaskDTO("Task 2", "Description 2", "IN_PROGRESS", "MEDIUM", "test@gmail.com");
+        List<GetTaskDTO> tasks = Arrays.asList(task1, task2);
 
         Mockito.when(taskService.getAllTasks()).thenReturn(tasks);
 
@@ -59,7 +63,7 @@ public class TaskControllerTests {
     @Test
     void shouldGetTaskById() throws Exception {
         Long taskId = 1L;
-        TaskDTO task = new TaskDTO("Task 1", "Description 1", "TODO", "HIGH", "sam@gmail.com", "sam");
+        GetTaskDTO task = new GetTaskDTO("Task 1", "Description 1", "TODO", "HIGH", "sam@gmail.com");
 
         Mockito.when(taskService.getTaskById(taskId)).thenReturn(Optional.of(task));
 
@@ -81,11 +85,12 @@ public class TaskControllerTests {
     }
 
     @Test
+    @WithMockUser
     void shouldCreateTask() throws Exception {
-        TaskDTO inputTask = new TaskDTO("New Task", "Description", "TODO", "HIGH", "sam@gmail.com", "sam");
-        TaskDTO createdTask = new TaskDTO("New Task", "Description", "TODO", "HIGH", "sam@gmail.com", "sam");
+        CreateTaskDTO inputTask = new CreateTaskDTO("New Task", "Description", "TODO", "HIGH");
+        GetTaskDTO createdTask = new GetTaskDTO("New Task", "Description", "TODO", "HIGH", "sam@gmail.com");
 
-        Mockito.when(taskService.createTask(any(TaskDTO.class))).thenReturn(createdTask);
+        Mockito.when(taskService.createTask(any(CreateTaskDTO.class))).thenReturn(createdTask);
 
         mockMvc.perform(post("/api/tasks")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -96,11 +101,12 @@ public class TaskControllerTests {
     }
 
     @Test
+    @WithMockUser
     void shouldReturnNotFoundWhenCreatingTaskWithInvalidOwner() throws Exception {
-        TaskDTO inputTask = new TaskDTO("New Task", "Description", "TODO", "HIGH", "invalid@gmail.com", "invalid");
+        CreateTaskDTO inputTask = new CreateTaskDTO("New Task", "Description", "TODO", "HIGH");
         String errorMessage = "User with email: invalid@gmail.com not found";
 
-        Mockito.when(taskService.createTask(any(TaskDTO.class)))
+        Mockito.when(taskService.createTask(any(CreateTaskDTO.class)))
                 .thenThrow(new ResourceNotFoundException(errorMessage));
 
         mockMvc.perform(post("/api/tasks")
@@ -110,12 +116,13 @@ public class TaskControllerTests {
     }
 
     @Test
+    @WithMockUser
     void shouldUpdateTask() throws Exception {
         Long taskId = 1L;
-        TaskDTO updateInfo = new TaskDTO("Updated Task", "Updated Description", "DONE", "LOW", "sam@gmail.com", "sam");
-        TaskDTO updatedTask = new TaskDTO("Updated Task", "Updated Description", "DONE", "LOW", "sam@gmail.com", "sam");
+        CreateTaskDTO updateInfo = new CreateTaskDTO("Updated Task", "Updated Description", "DONE", "LOW");
+        GetTaskDTO updatedTask = new GetTaskDTO("Updated Task", "Updated Description", "DONE", "LOW", "sam@gmail.com");
 
-        Mockito.when(taskService.updateTask(eq(taskId), any(TaskDTO.class))).thenReturn(updatedTask);
+        Mockito.when(taskService.updateTask(eq(taskId), any(CreateTaskDTO.class))).thenReturn(updatedTask);
 
         mockMvc.perform(put("/api/tasks/{id}", taskId)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -126,6 +133,7 @@ public class TaskControllerTests {
     }
 
     @Test
+    @WithMockUser
     void shouldDeleteTask() throws Exception {
         Long taskId = 1L;
 

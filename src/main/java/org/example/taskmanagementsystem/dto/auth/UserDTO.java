@@ -1,4 +1,4 @@
-package org.example.taskmanagementsystem.dto;
+package org.example.taskmanagementsystem.dto.auth;
 
 import org.example.taskmanagementsystem.model.User;
 

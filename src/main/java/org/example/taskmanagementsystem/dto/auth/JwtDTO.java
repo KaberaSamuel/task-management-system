@@ -1,4 +1,4 @@
-package org.example.taskmanagementsystem.dto;
+package org.example.taskmanagementsystem.dto.auth;
 
 public record JwtDTO(
         String accessToken) {
