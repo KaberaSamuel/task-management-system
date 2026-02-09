@@ -6,6 +6,8 @@ import org.example.taskmanagementsystem.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -32,9 +34,12 @@ public class TaskController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+
+
     // Create a new task
     @PostMapping
-    public ResponseEntity<GetTaskDTO> createTask(@RequestBody CreateTaskDTO taskDto) {
+    public ResponseEntity<GetTaskDTO> createTask(@AuthenticationPrincipal UserDetails userDetails,
+                                                 @RequestBody CreateTaskDTO taskDto) {
         GetTaskDTO createdTask = taskService.createTask(taskDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdTask);
     }

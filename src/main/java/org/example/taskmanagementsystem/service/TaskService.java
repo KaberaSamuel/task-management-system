@@ -41,16 +41,16 @@ public class TaskService {
     // Create a new task
     public GetTaskDTO createTask(CreateTaskDTO taskDto) {
         // get owner from security context
-        String currentUserEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-        User dbOwner = userRepository.findByEmail(currentUserEmail)
-                .orElseThrow(() -> new ResourceNotFoundException("User with email: " + currentUserEmail + " not found"));
+        User currentUser = (User) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
 
         Task task = new Task();
         task.setTitle(taskDto.getTitle());
         task.setDescription(taskDto.getDescription());
         task.setStatus(taskDto.getStatus());
         task.setPriority(taskDto.getPriority());
-        task.setOwner(dbOwner);
+        task.setOwner(currentUser);
 
         Task savedTask = taskRepository.save(task);
         return GetTaskDTO.fromTask(savedTask);
