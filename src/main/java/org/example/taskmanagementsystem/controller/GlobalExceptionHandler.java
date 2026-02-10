@@ -1,6 +1,7 @@
 package org.example.taskmanagementsystem.controller;
 
 import org.example.taskmanagementsystem.dto.ErrorResponse;
+import org.example.taskmanagementsystem.exception.AccessDeniedException;
 import org.example.taskmanagementsystem.exception.DuplicateEmailException;
 import org.example.taskmanagementsystem.exception.ResourceNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -40,6 +41,14 @@ public class GlobalExceptionHandler {
         ErrorResponse error = new ErrorResponse(401, "Invalid email or password");
         return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }
+
+    @ExceptionHandler (AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAccessDenied
+            (AccessDeniedException ex) {
+        ErrorResponse error = new ErrorResponse(403, ex.getMessage());
+        return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
+    }
+
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ErrorResponse> handleRuntimeError(RuntimeException ex) {

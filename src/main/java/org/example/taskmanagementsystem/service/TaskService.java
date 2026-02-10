@@ -2,6 +2,8 @@ package org.example.taskmanagementsystem.service;
 
 import org.example.taskmanagementsystem.dto.task.CreateTaskDTO;
 import org.example.taskmanagementsystem.dto.task.GetTaskDTO;
+import org.example.taskmanagementsystem.enums.UserRole;
+import org.example.taskmanagementsystem.exception.AccessDeniedException;
 import org.example.taskmanagementsystem.exception.ResourceNotFoundException;
 import org.example.taskmanagementsystem.model.Task;
 import org.example.taskmanagementsystem.model.User;
@@ -17,11 +19,26 @@ import java.util.stream.Collectors;
 @Service
 public class TaskService {
     private final TaskRepository taskRepository;
-    private final UserRepository userRepository;
 
     public TaskService(TaskRepository taskRepository, UserRepository userRepository) {
         this.taskRepository = taskRepository;
-        this.userRepository = userRepository;
+    }
+
+    private static User getAuthenticatedUser() {
+        return (User) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
+    }
+
+    private static boolean isActionPermitted(Task task) {
+        User currentUser = getAuthenticatedUser();
+
+        // Check permissions (Only Admin and Task Owners are permitted)
+        if (currentUser == null) {
+            throw new AccessDeniedException("User not logged in");
+        } else if ( currentUser.getRole() == UserRole.ADMIN) {
+            return true;
+        } else return currentUser.getEmail().equals(task.getOwner().getEmail());
     }
 
     // Get all tasks
@@ -40,11 +57,7 @@ public class TaskService {
 
     // Create a new task
     public GetTaskDTO createTask(CreateTaskDTO taskDto) {
-        // get owner from security context
-        User currentUser = (User) SecurityContextHolder.getContext()
-                .getAuthentication()
-                .getPrincipal();
-
+        User currentUser = getAuthenticatedUser();
         Task task = new Task();
         task.setTitle(taskDto.getTitle());
         task.setDescription(taskDto.getDescription());
@@ -61,6 +74,11 @@ public class TaskService {
         Task existingTask = taskRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Task with id: " + id + " not found"));
 
+        boolean isPermitted = isActionPermitted(existingTask);
+        if (!isPermitted) {
+            throw new AccessDeniedException("Action not  permitted");
+        }
+
         existingTask.setTitle(taskDetailsDto.getTitle());
         existingTask.setDescription(taskDetailsDto.getDescription());
         existingTask.setStatus(taskDetailsDto.getStatus());
@@ -72,10 +90,12 @@ public class TaskService {
 
     // Delete a task by id
     public void deleteTask(Long id) {
-        if (taskRepository.existsById(id)) {
-            taskRepository.deleteById(id);
-        } else {
-            throw new ResourceNotFoundException("Task with id: " + id + " not found");
-        }
+            Task task = taskRepository.findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Task with id: " + id + " not found"));
+            if (isActionPermitted(task)) {
+                taskRepository.delete(task);
+            } else {
+                throw new AccessDeniedException("Action not permitted");
+            }
     }
 }
