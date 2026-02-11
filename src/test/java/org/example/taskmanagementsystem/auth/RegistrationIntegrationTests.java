@@ -13,6 +13,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -41,6 +42,7 @@ public class RegistrationIntegrationTests {
         );
 
         mockMvc.perform(post("/auth/register")
+                        .with(user("admin").roles("ADMIN")) // grant admin authorities
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(inputUser)))
                 .andExpect(status().isCreated());
@@ -57,12 +59,14 @@ public class RegistrationIntegrationTests {
 
         // first registration (should succeed)
         mockMvc.perform(post("/auth/register")
+                        .with(user("admin").roles("ADMIN")) // grant admin authorities
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(inputUser)))
                 .andExpect(status().isCreated());
 
         // second registration should throw duplicate email exception
         mockMvc.perform(post("/auth/register")
+                        .with(user("admin").roles("ADMIN")) // grant admin authorities
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(inputUser)))
                 .andExpect(status().isForbidden())
