@@ -63,6 +63,8 @@ Endpoints for user registration, login, and logout.
 #### Register User
 `POST /auth/register`
 
+*Requires Admin role.*
+
 **Request Body:**
 ```json
 {
@@ -107,7 +109,7 @@ Endpoints for user registration, login, and logout.
 
 ### Task Management
 
-Full CRUD operations for tasks. All endpoints require a **Bearer Token**.
+Full CRUD operations for tasks. `GET` requests are **public**. All other endpoints require a **Bearer Token**.
 
 #### Get All Tasks
 `GET /api/tasks`
@@ -146,6 +148,8 @@ Full CRUD operations for tasks. All endpoints require a **Bearer Token**.
 #### Update Task
 `PUT /api/tasks/{id}`
 
+*Requires Admin role or Task Ownership.*
+
 **Request Body:**
 ```json
 {
@@ -161,6 +165,8 @@ Full CRUD operations for tasks. All endpoints require a **Bearer Token**.
 
 #### Delete Task
 `DELETE /api/tasks/{id}`
+
+*Requires Admin role or Task Ownership.*
 
 **Response:**
 - `204 No Content`

@@ -50,6 +50,12 @@ public class User implements UserDetails {
         this.role = role;
     }
 
+    public String toString() {
+        return "name: " + this.getUsername() + "\n"
+                + "email: " + this.getEmail() + "\n"
+                + "role: " + this.getRole();
+    }
+
 
     @Override
     @JsonIgnore

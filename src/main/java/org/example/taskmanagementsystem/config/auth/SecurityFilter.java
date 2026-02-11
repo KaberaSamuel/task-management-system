@@ -33,7 +33,7 @@ public class SecurityFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         var token = this.recoverToken(request);
         if (token != null) {
-            // check if token was blacklisted`
+            // check if token was blacklisted
             if (invalidTokenRepository.findByToken(token).isPresent()) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.getWriter().write("Token invalidated. Please log in again.");
