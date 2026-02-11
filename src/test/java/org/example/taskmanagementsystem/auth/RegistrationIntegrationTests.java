@@ -24,7 +24,7 @@ import java.util.Map;
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @Transactional
-public class RegistrationTests {
+public class RegistrationIntegrationTests {
     @Autowired
     private MockMvc mockMvc;
 

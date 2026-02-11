@@ -3,15 +3,25 @@ package org.example.taskmanagementsystem.dto.task;
 import org.example.taskmanagementsystem.model.Task;
 
 public class GetTaskDTO extends CreateTaskDTO {
+    private Long id;
     private String ownerEmail;
 
     public GetTaskDTO() {}
 
-    public GetTaskDTO(String title, String description, String status, String priority, String ownerEmail) {
+    public GetTaskDTO(Long id, String title, String description, String status, String priority, String ownerEmail) {
         super(title, description, status, priority);
+        this.id = id;
 
         // add owner Email
         this.ownerEmail = ownerEmail;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getOwnerEmail() {
@@ -24,6 +34,7 @@ public class GetTaskDTO extends CreateTaskDTO {
 
     public static GetTaskDTO fromTask(Task task) {
         return new GetTaskDTO(
+                task.getId(),
                 task.getTitle(),
                 task.getDescription(),
                 task.getStatus(),

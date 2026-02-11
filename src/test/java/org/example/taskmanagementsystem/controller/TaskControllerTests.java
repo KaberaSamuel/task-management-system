@@ -3,6 +3,7 @@ package org.example.taskmanagementsystem.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.taskmanagementsystem.dto.task.CreateTaskDTO;
 import org.example.taskmanagementsystem.dto.task.GetTaskDTO;
+import org.example.taskmanagementsystem.exception.AccessDeniedException;
 import org.example.taskmanagementsystem.exception.ResourceNotFoundException;
 import org.example.taskmanagementsystem.service.TaskService;
 import org.junit.jupiter.api.Test;
@@ -44,8 +45,8 @@ public class TaskControllerTests {
 
     @Test
     void shouldGetAllTasks() throws Exception {
-        GetTaskDTO task1 = new GetTaskDTO("Task 1", "Description 1", "TODO", "HIGH", "sam@gmail.com");
-        GetTaskDTO task2 = new GetTaskDTO("Task 2", "Description 2", "IN_PROGRESS", "MEDIUM", "test@gmail.com");
+        GetTaskDTO task1 = new GetTaskDTO(1L, "Task 1", "Description 1", "TODO", "HIGH", "sam@gmail.com");
+        GetTaskDTO task2 = new GetTaskDTO(2L, "Task 2", "Description 2", "IN_PROGRESS", "MEDIUM", "test@gmail.com");
         List<GetTaskDTO> tasks = Arrays.asList(task1, task2);
 
         Mockito.when(taskService.getAllTasks()).thenReturn(tasks);
@@ -63,7 +64,7 @@ public class TaskControllerTests {
     @Test
     void shouldGetTaskById() throws Exception {
         Long taskId = 1L;
-        GetTaskDTO task = new GetTaskDTO("Task 1", "Description 1", "TODO", "HIGH", "sam@gmail.com");
+        GetTaskDTO task = new GetTaskDTO(taskId,"Task 1", "Description 1", "TODO", "HIGH", "sam@gmail.com");
 
         Mockito.when(taskService.getTaskById(taskId)).thenReturn(Optional.of(task));
 
@@ -88,7 +89,7 @@ public class TaskControllerTests {
     @WithMockUser
     void shouldCreateTask() throws Exception {
         CreateTaskDTO inputTask = new CreateTaskDTO("New Task", "Description", "TODO", "HIGH");
-        GetTaskDTO createdTask = new GetTaskDTO("New Task", "Description", "TODO", "HIGH", "sam@gmail.com");
+        GetTaskDTO createdTask = new GetTaskDTO(1L, "New Task", "Description", "TODO", "HIGH", "sam@gmail.com");
 
         Mockito.when(taskService.createTask(any(CreateTaskDTO.class))).thenReturn(createdTask);
 
@@ -120,7 +121,7 @@ public class TaskControllerTests {
     void shouldUpdateTask() throws Exception {
         Long taskId = 1L;
         CreateTaskDTO updateInfo = new CreateTaskDTO("Updated Task", "Updated Description", "DONE", "LOW");
-        GetTaskDTO updatedTask = new GetTaskDTO("Updated Task", "Updated Description", "DONE", "LOW", "sam@gmail.com");
+        GetTaskDTO updatedTask = new GetTaskDTO(taskId, "Updated Task", "Updated Description", "DONE", "LOW", "sam@gmail.com");
 
         Mockito.when(taskService.updateTask(eq(taskId), any(CreateTaskDTO.class))).thenReturn(updatedTask);
 
@@ -134,6 +135,21 @@ public class TaskControllerTests {
 
     @Test
     @WithMockUser
+    void shouldReturnForbiddenWhenUserNotAuthorized() throws Exception {
+        Long taskId = 1L;
+        CreateTaskDTO updateInfo = new CreateTaskDTO("Updated Task", "Updated Description", "DONE", "LOW");
+
+        Mockito.when(taskService.updateTask(eq(taskId), any(CreateTaskDTO.class)))
+                .thenThrow(new AccessDeniedException("Action not permitted"));
+
+        mockMvc.perform(put("/api/tasks/{id}", taskId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateInfo)))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser
     void shouldDeleteTask() throws Exception {
         Long taskId = 1L;
 
@@ -141,5 +157,17 @@ public class TaskControllerTests {
 
         mockMvc.perform(delete("/api/tasks/{id}", taskId))
                 .andExpect(status().isNoContent());
+    }
+
+    @Test
+    @WithMockUser
+    void shouldReturnForbiddenWhenDeletingUnauthorized() throws Exception {
+        Long taskId = 1L;
+
+        Mockito.doThrow(new AccessDeniedException("Action not permitted"))
+                .when(taskService).deleteTask(taskId);
+
+        mockMvc.perform(delete("/api/tasks/{id}", taskId))
+                .andExpect(status().isForbidden());
     }
 }
