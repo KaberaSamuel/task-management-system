@@ -1,14 +1,17 @@
 package org.example.taskmanagementsystem.dto.task;
 
+import org.example.taskmanagementsystem.enums.TaskPriority;
+import org.example.taskmanagementsystem.enums.TaskStatus;
+
 public class CreateTaskDTO {
     private String title;
     private String description;
-    private String status;
-    private String priority;
+    private TaskStatus status;
+    private TaskPriority priority;
 
     public CreateTaskDTO() {}
 
-    public CreateTaskDTO(String title, String description, String status, String priority) {
+    public CreateTaskDTO(String title, String description, TaskStatus status, TaskPriority priority) {
         this.title = title;
         this.description = description;
         this.status = status;
@@ -31,19 +34,19 @@ public class CreateTaskDTO {
         this.description = description;
     }
 
-    public String getStatus() {
+    public TaskStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(TaskStatus status) {
         this.status = status;
     }
 
-    public String getPriority() {
+    public TaskPriority getPriority() {
         return priority;
     }
 
-    public void setPriority(String priority) {
+    public void setPriority(TaskPriority priority) {
         this.priority = priority;
     }
 }

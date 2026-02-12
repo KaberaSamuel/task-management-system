@@ -5,6 +5,8 @@ import jakarta.transaction.Transactional;
 import org.example.taskmanagementsystem.auth.AuthHelper;
 import org.example.taskmanagementsystem.dto.task.CreateTaskDTO;
 import org.example.taskmanagementsystem.dto.task.GetTaskDTO;
+import org.example.taskmanagementsystem.enums.TaskPriority;
+import org.example.taskmanagementsystem.enums.TaskStatus;
 import org.example.taskmanagementsystem.enums.UserRole;
 import org.example.taskmanagementsystem.dto.OwnerTaskCredentials;
 import org.junit.jupiter.api.Test;
@@ -42,7 +44,7 @@ public class TasksAuthorizationIntegrationTests {
         String ownerToken = authHelper.loginAndGetToken("owner@example.com", "password");
 
         // Create task as owner
-        CreateTaskDTO createTask = new CreateTaskDTO("My Task", "Description", "TODO", "HIGH");
+        CreateTaskDTO createTask = new CreateTaskDTO("My Task", "Description", TaskStatus.TODO, TaskPriority.HIGH);
         MvcResult createResult = mockMvc.perform(post("/api/tasks")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + ownerToken)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -62,7 +64,7 @@ public class TasksAuthorizationIntegrationTests {
         OwnerTaskCredentials ownerTaskCredentials = createTaskAsOwner();
 
         // Update task as owner - should succeed
-        CreateTaskDTO updateTask = new CreateTaskDTO("Updated Task", "New Description", "DONE", "LOW");
+        CreateTaskDTO updateTask = new CreateTaskDTO("Updated Task", "New Description", TaskStatus.COMPLETED, TaskPriority.LOW);
         mockMvc.perform(put("/api/tasks/{id}", ownerTaskCredentials.id())
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + ownerTaskCredentials.token())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -81,7 +83,7 @@ public class TasksAuthorizationIntegrationTests {
         String otherToken = authHelper.loginAndGetToken("other@example.com", "password");
 
         // Try to update as non-owner - should fail
-        CreateTaskDTO updateTask = new CreateTaskDTO("Hacked Task", "Evil Description", "DONE", "LOW");
+        CreateTaskDTO updateTask = new CreateTaskDTO("Hacked Task", "Evil Description", TaskStatus.COMPLETED, TaskPriority.LOW);
         mockMvc.perform(put("/api/tasks/{id}", ownerTaskCredentials.id())
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + otherToken)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -99,7 +101,7 @@ public class TasksAuthorizationIntegrationTests {
         String adminToken = authHelper.loginAndGetToken("admin@example.com", "password");
 
         // Update as admin - should succeed
-        CreateTaskDTO updateTask = new CreateTaskDTO("Admin Updated", "Admin Description", "DONE", "LOW");
+        CreateTaskDTO updateTask = new CreateTaskDTO("Admin Updated", "Admin Description", TaskStatus.COMPLETED, TaskPriority.LOW);
         mockMvc.perform(put("/api/tasks/{id}", ownerTaskCredentials.id())
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + adminToken)
                         .contentType(MediaType.APPLICATION_JSON)

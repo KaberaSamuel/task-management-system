@@ -1,5 +1,7 @@
 package org.example.taskmanagementsystem.dto.task;
 
+import org.example.taskmanagementsystem.enums.TaskPriority;
+import org.example.taskmanagementsystem.enums.TaskStatus;
 import org.example.taskmanagementsystem.model.Task;
 
 public class GetTaskDTO extends CreateTaskDTO {
@@ -8,7 +10,7 @@ public class GetTaskDTO extends CreateTaskDTO {
 
     public GetTaskDTO() {}
 
-    public GetTaskDTO(Long id, String title, String description, String status, String priority, String ownerEmail) {
+    public GetTaskDTO(Long id, String title, String description, TaskStatus status, TaskPriority priority, String ownerEmail) {
         super(title, description, status, priority);
         this.id = id;
 

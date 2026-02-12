@@ -3,6 +3,8 @@ package org.example.taskmanagementsystem.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.taskmanagementsystem.dto.task.CreateTaskDTO;
 import org.example.taskmanagementsystem.dto.task.GetTaskDTO;
+import org.example.taskmanagementsystem.enums.TaskPriority;
+import org.example.taskmanagementsystem.enums.TaskStatus;
 import org.example.taskmanagementsystem.exception.AccessDeniedException;
 import org.example.taskmanagementsystem.exception.ResourceNotFoundException;
 import org.example.taskmanagementsystem.service.TaskService;
@@ -45,8 +47,8 @@ public class TaskControllerTests {
 
     @Test
     void shouldGetAllTasks() throws Exception {
-        GetTaskDTO task1 = new GetTaskDTO(1L, "Task 1", "Description 1", "TODO", "HIGH", "sam@gmail.com");
-        GetTaskDTO task2 = new GetTaskDTO(2L, "Task 2", "Description 2", "IN_PROGRESS", "MEDIUM", "test@gmail.com");
+        GetTaskDTO task1 = new GetTaskDTO(1L, "Task 1", "Description 1", TaskStatus.TODO, TaskPriority.MEDIUM, "sam@gmail.com");
+        GetTaskDTO task2 = new GetTaskDTO(2L, "Task 2", "Description 2", TaskStatus.IN_PROGRESS, TaskPriority.MEDIUM, "test@gmail.com");
         List<GetTaskDTO> tasks = Arrays.asList(task1, task2);
 
         Mockito.when(taskService.getAllTasks()).thenReturn(tasks);
@@ -64,7 +66,7 @@ public class TaskControllerTests {
     @Test
     void shouldGetTaskById() throws Exception {
         Long taskId = 1L;
-        GetTaskDTO task = new GetTaskDTO(taskId,"Task 1", "Description 1", "TODO", "HIGH", "sam@gmail.com");
+        GetTaskDTO task = new GetTaskDTO(taskId,"Task 1", "Description 1", TaskStatus.TODO, TaskPriority.MEDIUM, "sam@gmail.com");
 
         Mockito.when(taskService.getTaskById(taskId)).thenReturn(Optional.of(task));
 
@@ -88,8 +90,8 @@ public class TaskControllerTests {
     @Test
     @WithMockUser
     void shouldCreateTask() throws Exception {
-        CreateTaskDTO inputTask = new CreateTaskDTO("New Task", "Description", "TODO", "HIGH");
-        GetTaskDTO createdTask = new GetTaskDTO(1L, "New Task", "Description", "TODO", "HIGH", "sam@gmail.com");
+        CreateTaskDTO inputTask = new CreateTaskDTO("New Task", "Description", TaskStatus.TODO, TaskPriority.MEDIUM);
+        GetTaskDTO createdTask = new GetTaskDTO(1L, "New Task", "Description", TaskStatus.TODO, TaskPriority.MEDIUM, "sam@gmail.com");
 
         Mockito.when(taskService.createTask(any(CreateTaskDTO.class))).thenReturn(createdTask);
 
@@ -104,7 +106,7 @@ public class TaskControllerTests {
     @Test
     @WithMockUser
     void shouldReturnNotFoundWhenCreatingTaskWithInvalidOwner() throws Exception {
-        CreateTaskDTO inputTask = new CreateTaskDTO("New Task", "Description", "TODO", "HIGH");
+        CreateTaskDTO inputTask = new CreateTaskDTO("New Task", "Description", TaskStatus.TODO, TaskPriority.MEDIUM);
         String errorMessage = "User with email: invalid@gmail.com not found";
 
         Mockito.when(taskService.createTask(any(CreateTaskDTO.class)))
@@ -120,8 +122,8 @@ public class TaskControllerTests {
     @WithMockUser
     void shouldUpdateTask() throws Exception {
         Long taskId = 1L;
-        CreateTaskDTO updateInfo = new CreateTaskDTO("Updated Task", "Updated Description", "DONE", "LOW");
-        GetTaskDTO updatedTask = new GetTaskDTO(taskId, "Updated Task", "Updated Description", "DONE", "LOW", "sam@gmail.com");
+        CreateTaskDTO updateInfo = new CreateTaskDTO("Updated Task", "Updated Description", TaskStatus.COMPLETED, TaskPriority.LOW);
+        GetTaskDTO updatedTask = new GetTaskDTO(taskId, "Updated Task", "Updated Description", TaskStatus.COMPLETED, TaskPriority.LOW, "sam@gmail.com");
 
         Mockito.when(taskService.updateTask(eq(taskId), any(CreateTaskDTO.class))).thenReturn(updatedTask);
 
@@ -130,14 +132,14 @@ public class TaskControllerTests {
                         .content(objectMapper.writeValueAsString(updateInfo)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value("Updated Task"))
-                .andExpect(jsonPath("$.status").value("DONE"));
+                .andExpect(jsonPath("$.status").value(TaskStatus.COMPLETED.toString()));
     }
 
     @Test
     @WithMockUser
     void shouldReturnForbiddenWhenUserNotAuthorized() throws Exception {
         Long taskId = 1L;
-        CreateTaskDTO updateInfo = new CreateTaskDTO("Updated Task", "Updated Description", "DONE", "LOW");
+        CreateTaskDTO updateInfo = new CreateTaskDTO("Updated Task", "Updated Description", TaskStatus.COMPLETED, TaskPriority.LOW);
 
         Mockito.when(taskService.updateTask(eq(taskId), any(CreateTaskDTO.class)))
                 .thenThrow(new AccessDeniedException("Action not permitted"));

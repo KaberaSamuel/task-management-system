@@ -1,6 +1,8 @@
 package org.example.taskmanagementsystem.model;
 
 import jakarta.persistence.*;
+import org.example.taskmanagementsystem.enums.TaskPriority;
+import org.example.taskmanagementsystem.enums.TaskStatus;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -31,8 +33,12 @@ public class Task {
 
     private String title;
     private String description;
-    private String status;
-    private String priority;
+
+    @Enumerated(EnumType.STRING)
+    private TaskStatus status;
+
+    @Enumerated(EnumType.STRING)
+    private TaskPriority priority;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -40,7 +46,7 @@ public class Task {
 
     public Task() {}
 
-    public Task(Long id, String title, String description, String status, String priority, LocalDateTime createdAt, LocalDateTime updatedAt, User owner) {
+    public Task(Long id, String title, String description, TaskStatus status, TaskPriority priority, LocalDateTime createdAt, LocalDateTime updatedAt, User owner) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -91,19 +97,19 @@ public class Task {
         this.description = description;
     }
 
-    public String getStatus() {
+    public TaskStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(TaskStatus status) {
         this.status = status;
     }
 
-    public String getPriority() {
+    public TaskPriority getPriority() {
         return priority;
     }
 
-    public void setPriority(String priority) {
+    public void setPriority(TaskPriority priority) {
         this.priority = priority;
     }
 
