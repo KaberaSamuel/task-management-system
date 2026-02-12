@@ -9,7 +9,13 @@ import java.time.LocalDateTime;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-@Table(name = "tasks")
+@Table(
+        name = "tasks",
+        indexes = {
+                @Index(name = "idx_title", columnList = "title"),
+                @Index(name = "idx_user_id", columnList = "user_id")
+        }
+)
 public class Task {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,7 +35,7 @@ public class Task {
     private String priority;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_Id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User owner;
 
     public Task() {}
